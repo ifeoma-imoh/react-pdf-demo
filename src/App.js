@@ -1,25 +1,56 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { useRef } from "react";
+import useFileSelection from "./hooks/useFileSelection";
+import UploadButton from "./components/UploadButton";
+import { Button, Row, Col } from "antd";
+import Pdf from "react-to-pdf";
 
-function App() {
+const App = () => {
+  const [addFile, removeFile, base64Strings, isLoading] = useFileSelection();
+  const ref = useRef();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ margin: "2%" }}>
+      <Row justify="center" style={{ marginBottom: "10px" }}>
+        <Col span={6}>
+          <UploadButton
+            addFile={addFile}
+            removeFile={removeFile}
+            loading={isLoading}
+          />
+        </Col>
+        <Col span={6}>
+          {base64Strings.length >= 1 && (
+            <Pdf
+              targetRef={ref}
+              filename="images.pdf"
+              options={{ orientation: "landscape" }}
+              scale={0.9}
+            >
+              {({ toPdf }) => (
+                <Button danger onClick={toPdf}>
+                  Generate Pdf
+                </Button>
+              )}
+            </Pdf>
+          )}
+        </Col>
+      </Row>
+      <div ref={ref}>
+        <Row gutter={[0, 16]} justify="center">
+          {base64Strings.map((base64String, index) => (
+            <Col span={5}>
+              <img
+                src={base64String}
+                key={index}
+                style={{ height: "200px", width: "250px" }}
+              />
+            </Col>
+          ))}
+        </Row>
+      </div>
     </div>
   );
-}
+};
 
 export default App;
